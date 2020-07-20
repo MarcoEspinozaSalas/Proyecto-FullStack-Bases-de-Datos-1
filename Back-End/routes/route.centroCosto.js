@@ -10,11 +10,11 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar un centroCosto
 router.post('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  const idCentroCosto = req.body.idCentroCosto;
+  const descripcion = req.body.descripcion;
+  if (!idCentroCosto || !descripcion){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,10 +22,10 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('idCentroCosto', sql.CHAR(8), idCentroCosto)
+    .input('descripcion', sql.VarChar(300), descripcion)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoCentroCosto')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Vacío"});
@@ -42,18 +42,18 @@ router.post('/', (req, res) => {
   });
 });
 
-//Modificar cliente
+//Modificar un centroCosto
 router.put('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
+  const idCentroCosto = req.body.idCentroCosto;
+  const descripcion = req.body.descripcion;
+  if (!idCentroCosto || !descripcion) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
     //  .input('cedula',req.params.cedula)
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
+    .input('idCentroCosto', sql.CHAR(8), idCentroCosto)
+    .input('descripcion', sql.NVARCHAR(300), descripcion)
+    .execute('modificarCentroCosto')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({estado: -2});

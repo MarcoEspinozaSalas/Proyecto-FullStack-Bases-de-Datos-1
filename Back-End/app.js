@@ -33,11 +33,9 @@ app.use((req, res, next) => {
 //Constantes que llaman a las rutas para ser corridas por el app.js
 const cliente= require('./routes/route.cliente');
 app.use('/cliente', cliente);
-//
-//
-// const usuarios= require('./routes/route.usuarios');
-// app.use('/usuarios', usuarios);
 
+const centroCosto= require('./routes/route.centroCosto');
+app.use('/centroCosto', centroCosto);
 
 //NOT FOUND
 app.use((req, res) => {

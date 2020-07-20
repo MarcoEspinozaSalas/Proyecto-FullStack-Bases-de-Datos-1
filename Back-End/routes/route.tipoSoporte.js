@@ -42,31 +42,5 @@ router.post('/', (req, res) => {
   });
 });
 
-//Modificar cliente
-router.put('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
-  // sql.connect(conn).then(pool => {
-  routePool.connect().then(pool => {
-    return pool.request()
-    //  .input('cedula',req.params.cedula)
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
-  }).then(val => {
-    routePool.close();
-    if (val.recordset === []) return res.status(200).json({estado: -2});
-    let estado = val.recordset[0][''];
-    if (estado === 1) return res.status(200).json({mensaje: "Se modificó"});
-    else if (estado === 0) return res.status(200).json({estado: "No se modificó"});
-    else return res.sendStatus(418);
-  }).catch(err => {
-    routePool.close();
-    console.error(err);
-    err.status = 500;
-    return next(err);
-  });
-});
 
 module.exports = router;
