@@ -10,11 +10,12 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar colaborador
 router.post('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  const idColaborador= req.body.idColaborador;
+  const descripcion = req.body.descripcion;
+  const responsable = req.body.responsable;
+  if (!idColaborador || !descripcion || !responsable){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,16 +23,17 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('idColaborador', sql.VARCHAR(20), idColaborador)
+    .input('descripcion', sql.NVarChar(300), descripcion)
+    .input('responsable', sql.VarChar(50), responsable)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoColaborador')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
     let estado = val.recordset[0][''];
     if (estado === 1) return res.status(201).json({mensaje:"Se insertó", estado: estado});
-    else if (estado === 0) return res.status(200).json({mensaje:"No se insertó, ya existe", estado: estado});
+    else if (estado === 0) return res.status(200).json({mensaje:"No se insertó, ya exite", estado: estado});
     else return res.sendStatus(418);
   }).catch(err => {
     routePool.close();
@@ -41,11 +43,11 @@ router.post('/', (req, res) => {
   });
 });
 
-//Obtener clientes
+//Obtener colaborador
 router.get('/', (req, res) => {
   routePool.connect().then(pool => {
     return pool.request()
-    .execute('obtenerClientes')
+    .execute('obtenerColaborador')
   }).then(val => {
     routePool.close();
     if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
@@ -60,23 +62,26 @@ router.get('/', (req, res) => {
 
 });
 
-//Modificar cliente
+//Modificar colaborador
 router.put('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
+  const idColaborador= req.body.idColaborador;
+  const descripcion = req.body.descripcion;
+  const responsable = req.body.responsable;
+  if (!idColaborador || !descripcion || !responsable) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
+    //  .input('cedula',req.params.cedula)
+    .input('idColaborador', sql.VARCHAR(20), idColaborador)
+    .input('descripcion', sql.NVarChar(300), descripcion)
+    .input('responsable', sql.VarChar(50), responsable)
+    .execute('modificarColaborador')
   }).then(val => {
     routePool.close();
-    if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
+    if (val.recordset === []) return res.status(200).json({mensaje: "Indefinido"});
     let estado = val.recordset[0][''];
     if (estado === 1) return res.status(200).json({mensaje: "Se modificó", estado: estado});
-    else if (estado === 0) return res.status(200).json({estado: "No se modificó", estado: estado});
+    else if (estado === 0) return res.status(200).json({mensaje: "No se modificó", estado: estado});
     else if (estado === 2) return res.status(200).json({mensaje: "No se permite acciones en este registro", estado: estado});
     else return res.sendStatus(418);
   }).catch(err => {
@@ -87,18 +92,19 @@ router.put('/', (req, res) => {
   });
 });
 
-//Modificar estado cliente
+//Modificar estado colaborador
 router.put('/estado', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const estadoCliente= req.body.estadoCliente;
-  if (estadoCliente > 1 || estadoCliente < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
-  if (!idCliente || !estadoCliente) return res.status(400).json({mensaje:"Faltan datos"});
-  // sql.connect(conn).then(pool => {
+  const idColaborador= req.body.idColaborador;
+  const estadoColaborador= req.body.estadoColaborador;
+  if (estadoColaborador > 1 || estadoColaborador < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
+  if (!idColaborador || !estadoColaborador) return res.status(400).json({mensaje:"Faltan datos"});
+  // sql.connect(conn).then(pool =>
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('estadoCliente', sql.INT, estadoCliente)
-    .execute('modificarEstadoCliente')
+    //  .input('cedula',req.params.cedula)
+    .input('idColaborador', sql.VARCHAR(20), idColaborador)
+    .input('estadoColaborador', sql.INT, estadoColaborador)
+    .execute('modificarEstadoColaborador')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -113,5 +119,6 @@ router.put('/estado', (req, res) => {
     return next(err);
   });
 });
+
 
 module.exports = router;

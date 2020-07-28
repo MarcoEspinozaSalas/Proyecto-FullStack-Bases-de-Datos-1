@@ -10,11 +10,11 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar labor
 router.post('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  const idLabor = req.body.idLabor;
+  const descripcion = req.body.descripcion;
+  if (!idLabor || !descripcion){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,10 +22,10 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('idLabor', sql.CHAR(3), idLabor)
+    .input('descripcion', sql.VarChar(300), descripcion)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoLabor')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -41,11 +41,11 @@ router.post('/', (req, res) => {
   });
 });
 
-//Obtener clientes
+//Obtener labor
 router.get('/', (req, res) => {
   routePool.connect().then(pool => {
     return pool.request()
-    .execute('obtenerClientes')
+    .execute('obtenerLabor')
   }).then(val => {
     routePool.close();
     if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
@@ -60,17 +60,17 @@ router.get('/', (req, res) => {
 
 });
 
-//Modificar cliente
+//Modificar labor
 router.put('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
+  const idLabor = req.body.idLabor;
+  const descripcion = req.body.descripcion;
+  if (!idLabor || !descripcion) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
+    .input('idLabor', sql.CHAR(3), idLabor)
+    .input('descripcion', sql.VarChar(300), descripcion)
+    .execute('modificarLabor')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -87,18 +87,18 @@ router.put('/', (req, res) => {
   });
 });
 
-//Modificar estado cliente
+//Modificar estado labor
 router.put('/estado', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const estadoCliente= req.body.estadoCliente;
-  if (estadoCliente > 1 || estadoCliente < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
-  if (!idCliente || !estadoCliente) return res.status(400).json({mensaje:"Faltan datos"});
+  const idLabor = req.body.idLabor;
+  const estadoLabor= req.body.estadoLabor;
+  if (estadoLabor > 1 || estadoLabor < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
+  if (!idLabor || !estadoLabor) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('estadoCliente', sql.INT, estadoCliente)
-    .execute('modificarEstadoCliente')
+    .input('idLabor', sql.CHAR(3), idLabor)
+    .input('estadoLabor', sql.INT, estadoLabor)
+    .execute('modificarEstadoLabor')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -113,5 +113,6 @@ router.put('/estado', (req, res) => {
     return next(err);
   });
 });
+
 
 module.exports = router;

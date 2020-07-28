@@ -10,11 +10,11 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar tipoViatico
 router.post('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  const idTipoViatico= req.body.idTipoViatico;
+  const descripcion = req.body.descripcion;
+  if (!idTipoViatico || !descripcion){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,10 +22,10 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('idTipoViatico', sql.Char(2), idTipoViatico)
+    .input('descripcion', sql.NVarChar(300), descripcion)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoTipoViatico')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -41,11 +41,11 @@ router.post('/', (req, res) => {
   });
 });
 
-//Obtener clientes
+//Obtener tipoViatico
 router.get('/', (req, res) => {
   routePool.connect().then(pool => {
     return pool.request()
-    .execute('obtenerClientes')
+    .execute('obtenerTipoViatico')
   }).then(val => {
     routePool.close();
     if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
@@ -60,17 +60,17 @@ router.get('/', (req, res) => {
 
 });
 
-//Modificar cliente
+//Modificar tipoViatico
 router.put('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
+  const idTipoViatico= req.body.idTipoViatico;
+  const descripcion = req.body.descripcion;
+  if (!idTipoViatico || !descripcion)return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
+    .input('idTipoViatico', sql.Char(2), idTipoViatico)
+    .input('descripcion', sql.VarChar(300), descripcion)
+    .execute('modificarTipoViatico')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -87,18 +87,18 @@ router.put('/', (req, res) => {
   });
 });
 
-//Modificar estado cliente
+//Modificar estado tipoViatico
 router.put('/estado', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const estadoCliente= req.body.estadoCliente;
-  if (estadoCliente > 1 || estadoCliente < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
-  if (!idCliente || !estadoCliente) return res.status(400).json({mensaje:"Faltan datos"});
+  const idTipoViatico = req.body.idTipoViatico;
+  const estadoTipoViatico= req.body.estadoTipoViatico;
+  if (estadoTipoViatico > 1 || estadoTipoViatico < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
+  if (!idTipoViatico || !estadoTipoViatico) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('estadoCliente', sql.INT, estadoCliente)
-    .execute('modificarEstadoCliente')
+    .input('idTipoViatico', sql.Char(2), idTipoViatico)
+    .input('estadoTipoViatico', sql.INT, estadoTipoViatico)
+    .execute('modificarEstadoTipoViatico')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});

@@ -10,11 +10,11 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar tipoSoporte
 router.post('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  const idTipoSoporte = req.body.idTipoSoporte;
+  const descripcion = req.body.descripcion;
+  if (!idTipoSoporte || !descripcion){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,10 +22,10 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('idTipoSoporte', sql.Char(1), idTipoSoporte)
+    .input('descripcion', sql.VarChar(300), descripcion)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoTipoSoporte')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -41,11 +41,11 @@ router.post('/', (req, res) => {
   });
 });
 
-//Obtener clientes
+//Obtener tipoSoporte
 router.get('/', (req, res) => {
   routePool.connect().then(pool => {
     return pool.request()
-    .execute('obtenerClientes')
+    .execute('obtenerTipoSoporte')
   }).then(val => {
     routePool.close();
     if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
@@ -60,17 +60,17 @@ router.get('/', (req, res) => {
 
 });
 
-//Modificar cliente
+//Modificar tipoSoporte
 router.put('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
+  const idTipoSoporte = req.body.idTipoSoporte;
+  const descripcion = req.body.descripcion;
+  if (!idTipoSoporte || !descripcion)return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
+    .input('idTipoSoporte', sql.Char(1), idTipoSoporte)
+    .input('descripcion', sql.VarChar(300), descripcion)
+    .execute('modificarTipoSoporte')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -87,18 +87,18 @@ router.put('/', (req, res) => {
   });
 });
 
-//Modificar estado cliente
+//Modificar estado tipoSoporte
 router.put('/estado', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const estadoCliente= req.body.estadoCliente;
-  if (estadoCliente > 1 || estadoCliente < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
-  if (!idCliente || !estadoCliente) return res.status(400).json({mensaje:"Faltan datos"});
+  const idTipoSoporte = req.body.idTipoSoporte;
+  const estadoTipoSoporte= req.body.estadoTipoSoporte;
+  if (estadoTipoSoporte > 1 || estadoTipoSoporte < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
+  if (!idTipoSoporte || !estadoTipoSoporte) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('estadoCliente', sql.INT, estadoCliente)
-    .execute('modificarEstadoCliente')
+    .input('idTipoSoporte', sql.Char(1), idTipoSoporte)
+    .input('estadoTipoSoporte', sql.INT, estadoTipoSoporte)
+    .execute('modificarEstadoTipoSoporte')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});

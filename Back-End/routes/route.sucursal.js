@@ -10,11 +10,11 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar sucursal
 router.post('/', (req, res) => {
+  const nombre = req.body.nombre;
   const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  if (!nombre || !idCliente){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,10 +22,10 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('nombre', sql.VarChar(50), nombre)
+    .input('idCliente', sql.Char(7), idCliente)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoSucursal')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -41,11 +41,11 @@ router.post('/', (req, res) => {
   });
 });
 
-//Obtener clientes
+//Obtener sucursal
 router.get('/', (req, res) => {
   routePool.connect().then(pool => {
     return pool.request()
-    .execute('obtenerClientes')
+    .execute('obtenerSucursales')
   }).then(val => {
     routePool.close();
     if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
@@ -60,17 +60,19 @@ router.get('/', (req, res) => {
 
 });
 
-//Modificar cliente
+//Modificar sucursal
 router.put('/', (req, res) => {
+  const idSucursal = req.body.idSucursal;
+  const nombre = req.body.nombre;
   const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon) return res.status(400).json({mensaje:"Faltan datos"});
+  if (!idSucursal || !nombre || !idCliente) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.NVARCHAR(50), razon)
-    .execute('modificarCliente')
+    .input('idSucursal', sql.INT, idSucursal)
+    .input('nombre', sql.VarChar(50), nombre)
+    .input('idCliente', sql.Char(7), idCliente)
+    .execute('modificarSucursal')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -87,18 +89,18 @@ router.put('/', (req, res) => {
   });
 });
 
-//Modificar estado cliente
+//Modificar estado sucursal
 router.put('/estado', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const estadoCliente= req.body.estadoCliente;
-  if (estadoCliente > 1 || estadoCliente < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
-  if (!idCliente || !estadoCliente) return res.status(400).json({mensaje:"Faltan datos"});
+  const idSucursal = req.body.idSucursal;
+  const estadoSucursal= req.body.estadoSucursal;
+  if (estadoSucursal > 1 || estadoSucursal < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
+  if (!idSucursal || !estadoSucursal) return res.status(400).json({mensaje:"Faltan datos"});
   // sql.connect(conn).then(pool => {
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('estadoCliente', sql.INT, estadoCliente)
-    .execute('modificarEstadoCliente')
+    .input('idSucursal', sql.CHAR(3), idSucursal)
+    .input('estadoSucursal', sql.INT, estadoSucursal)
+    .execute('modificarEstadoSucursal')
   }).then(val => {
     routePool.close();
     if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
@@ -112,6 +114,25 @@ router.put('/estado', (req, res) => {
     err.status = 500;
     return next(err);
   });
+});
+
+//Cursor sucursal
+router.get('/cursor', (req, res) => {
+  routePool.connect().then(pool => {
+    return pool.request()
+    .execute('cursorSucursal')
+  }).then(val => {
+    routePool.close();
+    if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
+    //Este console.log es para saber el formato en que lo mando
+    return res.status(200).json(val.recordsets);
+  }).catch(err => {
+    routePool.close();
+    console.error(err);
+    err.status = 500;
+    return next(err);
+  });
+
 });
 
 module.exports = router;
