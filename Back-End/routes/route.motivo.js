@@ -10,11 +10,11 @@ router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 
-//Insertar un cliente
+//Insertar motivo
 router.post('/', (req, res) => {
-  const idCliente = req.body.idCliente;
-  const razon = req.body.razon;
-  if (!idCliente || !razon){
+  const idMotivo = req.body.idMotivo;
+  const descripcion = req.body.descripcion;
+  if (!idMotivo || !descripcion){
 
       return res.status(400).json({mensaje:'Falta datos'});
 
@@ -22,17 +22,16 @@ router.post('/', (req, res) => {
 
   routePool.connect().then(pool => {
     return pool.request()
-    .input('idCliente', sql.CHAR(7), idCliente)
-    .input('razon', sql.VarChar(50), razon)
+    .input('idMotivo', sql.CHAR(3), idMotivo)
+    .input('descripcion', sql.VarChar(300), descripcion)
     //.ouput       -------------- para obtener el error desde base de datos
-    .execute('ingresoCliente')
+    .execute('ingresoMotivo')
   }).then(val => {
     routePool.close();
-    if (val.recordset === []) return res.status(200).json({mensaje:"Vacío"});
-    //console.log(val.recordset);
+    if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
     let estado = val.recordset[0][''];
-    if (estado === 1) return res.status(201).json({mensaje:"Se insertó"});
-    else if (estado === 0) return res.status(200).json({mensaje:"No se insertó, ya exite"});
+    if (estado === 1) return res.status(201).json({mensaje:"Se insertó", estado: estado});
+    else if (estado === 0) return res.status(200).json({mensaje:"No se insertó, ya existe", estado: estado});
     else return res.sendStatus(418);
   }).catch(err => {
     routePool.close();
@@ -42,5 +41,77 @@ router.post('/', (req, res) => {
   });
 });
 
+//Obtener motivo
+router.get('/', (req, res) => {
+  routePool.connect().then(pool => {
+    return pool.request()
+    .execute('obtenerMotivo')
+  }).then(val => {
+    routePool.close();
+    if (val.recordset === undefined) return res.status(404).json({mensaje:"No hay datos"});
+    //Este console.log es para saber el formato en que lo mando
+    return res.status(200).json(val.recordset);
+  }).catch(err => {
+    routePool.close();
+    console.error(err);
+    err.status = 500;
+    return next(err);
+  });
+
+});
+
+//Modificar motivo
+router.put('/', (req, res) => {
+  const idMotivo= req.body.idMotivo;
+  const descripcion = req.body.descripcion;
+  if (!idMotivo || !descripcion) return res.status(400).json({mensaje:"Faltan datos"});
+  // sql.connect(conn).then(pool => {
+  routePool.connect().then(pool => {
+    return pool.request()
+    .input('idMotivo', sql.CHAR(3), idMotivo)
+    .input('descripcion', sql.VarChar(300), descripcion)
+    .execute('modificarMotivo')
+  }).then(val => {
+    routePool.close();
+    if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
+    let estado = val.recordset[0][''];
+    if (estado === 1) return res.status(200).json({mensaje: "Se modificó", estado: estado});
+    else if (estado === 0) return res.status(200).json({estado: "No se modificó", estado: estado});
+    else if (estado === 2) return res.status(200).json({mensaje: "No se permite acciones en este registro", estado: estado});
+    else return res.sendStatus(418);
+  }).catch(err => {
+    routePool.close();
+    console.error(err);
+    err.status = 500;
+    return next(err);
+  });
+});
+
+//Modificar estado motivo
+router.put('/estado', (req, res) => {
+  const idMotivo = req.body.idMotivo;
+  const estadoMotivo= req.body.estadoMotivo;
+  if (estadoMotivo > 1 || estadoMotivo < 0) return res.status(400).json({mensaje:"Debe insertar 1 o 0 para el estado"});
+  if (!idMotivo || !estadoMotivo) return res.status(400).json({mensaje:"Faltan datos"});
+  // sql.connect(conn).then(pool => {
+  routePool.connect().then(pool => {
+    return pool.request()
+    .input('idMotivo', sql.CHAR(3), idMotivo)
+    .input('estadoMotivo', sql.INT, estadoMotivo)
+    .execute('modificarEstadoMotivo')
+  }).then(val => {
+    routePool.close();
+    if (val.recordset === []) return res.status(200).json({mensaje:"Indefinido"});
+    let estado = val.recordset[0][''];
+    if (estado === 1) return res.status(200).json({mensaje: "Se modificó", estado: estado});
+    else if (estado === 0) return res.status(200).json({mensaje: "No se modificó", estado: estado});
+    else return res.sendStatus(418);
+  }).catch(err => {
+    routePool.close();
+    console.error(err);
+    err.status = 500;
+    return next(err);
+  });
+});
 
 module.exports = router;

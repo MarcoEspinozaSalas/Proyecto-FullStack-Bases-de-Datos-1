@@ -37,6 +37,40 @@ app.use('/cliente', cliente);
 const centroCosto= require('./routes/route.centroCosto');
 app.use('/centroCosto', centroCosto);
 
+const cobroXKilometraje= require('./routes/route.cobroXKilometraje');
+app.use('/cobroXKilometraje', cobroXKilometraje);
+
+const colaborador = require('./routes/route.colaborador');
+app.use('/colaborador', colaborador);
+
+const eventos = require('./routes/route.eventos');
+app.use('/eventos', eventos);
+
+const labor = require('./routes/route.labor');
+app.use('/labor', labor);
+
+const motivo = require('./routes/route.motivo');
+app.use('/motivo', motivo);
+
+const sucursal = require('./routes/route.sucursal');
+app.use('/sucursal', sucursal);
+
+const tipoLabor = require('./routes/route.tipoLabor');
+app.use('/tipoLabor', tipoLabor);
+
+const tipoSoporte = require('./routes/route.tipoSoporte');
+app.use('/tipoSoporte', tipoSoporte);
+
+const tipoViatico= require('./routes/route.tipoViatico');
+app.use('/tipoViatico', tipoViatico);
+
+const vehiculo= require('./routes/route.vehiculo');
+app.use('/vehiculo', vehiculo);
+
+const viatico= require('./routes/route.viatico');
+app.use('/viatico', viatico);
+
+
 //NOT FOUND
 app.use((req, res) => {
   res.sendStatus(404);
